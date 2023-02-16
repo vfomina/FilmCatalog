@@ -55,16 +55,17 @@ fun FilmsNavHost(filmsViewModel: FilmsViewModel) {
         navController = navController, startDestination = "list"
     ) {
         composable("list") {
+
             FilmListScreen(
                 navController,
-                films = filmsViewModel.filmList,
+                films = filmsViewModel.getFilms(),
             )
         }
         composable(
             "details/{filmId}", arguments = listOf(navArgument("filmId") { type = NavType.IntType })
         ) { backStackEntry ->
             FilmDetailScreen(
-                navController, filmsViewModel, backStackEntry.arguments?.getInt("filmId") ?: 0
+                filmsViewModel, backStackEntry.arguments?.getInt("filmId") ?: 0
             )
         }
     }
