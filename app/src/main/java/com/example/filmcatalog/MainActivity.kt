@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -21,6 +22,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.filmcatalog.compose.FilmDetailScreen
 import com.example.filmcatalog.data.Film
 import com.example.filmcatalog.ui.theme.FilmCatalogTheme
 
@@ -30,11 +38,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             FilmCatalogTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background
                 ) {
-                    FilmGrid(films = viewModel.filmList)
+                    FilmsNavHost(viewModel)
                 }
             }
         }
@@ -42,19 +49,43 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun FilmGrid(films: List<Film>) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2), modifier = Modifier.fillMaxSize()
+fun FilmsNavHost(filmsViewModel: FilmsViewModel) {
+    val navController = rememberNavController()
+    NavHost(
+        navController = navController, startDestination = "list"
     ) {
-        items(films) { film ->
-            FilmCard(film = film)
+        composable("list") {
+            FilmListScreen(
+                navController,
+                films = filmsViewModel.filmList,
+            )
+        }
+        composable(
+            "details/{filmId}", arguments = listOf(navArgument("filmId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            FilmDetailScreen(
+                navController, filmsViewModel, backStackEntry.arguments?.getInt("filmId") ?: 0
+            )
         }
     }
 }
 
 @Composable
-fun FilmCard(film: Film) {
-    Card() {
+fun FilmListScreen(navController: NavHostController, films: List<Film>) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2), modifier = Modifier.fillMaxSize()
+    ) {
+        items(films) { film ->
+            FilmCard(film = film, navController)
+        }
+    }
+}
+
+@Composable
+fun FilmCard(film: Film, navController: NavHostController) {
+    Card(modifier = Modifier
+        .fillMaxSize()
+        .clickable { navController.navigate("details/${film.id}") }) {
         Column(
             modifier = Modifier
                 .padding(20.dp)

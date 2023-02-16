@@ -49,4 +49,5 @@ class FilmsViewModel : ViewModel() {
                     "опасное приключение, которое приведет их в необычные новые миры и проверит их дружбу на прочность."
         ),
     )
+    fun getFilmById(id: Int) = filmList[id]
 }
