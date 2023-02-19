@@ -11,7 +11,7 @@ import kotlinx.serialization.json.Json
 class FilmsViewModel : ViewModel() {
     fun getFilms() =
         Json
-            .decodeFromString<List<Film>>(loadJsonFromAssets(MyApplication.getInstance()))
+            .decodeFromString<List<Film>>(loadJsonFromAssets(MyApplication.instance))
             .mapIdToImageId()
 
     fun getFilmById(filmId: Int): Film? = getFilms().find { it.id == filmId }
